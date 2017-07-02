@@ -24,10 +24,11 @@ class TestCrawler:
             time.sleep(2)
             self.click_search_button(driver)
             time.sleep(2)
-            screenshot_temp_file = tempfile.NamedTemporaryFile(suffix='.png', prefix='imdaebot_', delete=False)
-            print(screenshot_temp_file.name)
-            self.capture_screenshot_notice_table(driver, screenshot_temp_file.name)
-            time.sleep(10)
+            #screenshot_temp_file = tempfile.NamedTemporaryFile(suffix='.png', prefix='imdaebot_', delete=False)
+            #print(screenshot_temp_file.name)
+            #self.capture_screenshot_notice_table(driver, screenshot_temp_file.name)
+            result = self.retrive_imdae_list(driver)
+            print(result)
         finally:
             driver.close()
 
@@ -53,3 +54,20 @@ class TestCrawler:
         notice_table_element = driver.find_element_by_css_selector(selector)
         ActionChains(driver).move_to_element(notice_table_element).perform()
         driver.get_screenshot_as_file(screenshot_path)
+
+    def retrive_imdae_list(self, driver):
+        selector = '#schTbody tr'
+        result = []
+        for tr in driver.find_elements_by_css_selector(selector):
+            tds = tr.find_elements_by_css_selector('td')
+            result.append(
+                {
+                    'type'   :tds[0].text.strip().replace('\n', ''),
+                    'status' : tds[1].text.strip().replace('\n', ''),
+                    'region' : tds[2].text.strip().replace('\n', ''),
+                    'notice_name' : tds[3].text.strip().replace('\n', ''),
+                    'notice_date' : tds[4].text.strip().replace('\n', ''),
+                    'provider' : tds[5].text.strip().replace('\n', ''),
+                }
+            )
+        return result
